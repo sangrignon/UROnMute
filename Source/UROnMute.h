@@ -52,10 +52,10 @@
 #include "AudioLiveScrollingDisplay.h"
 
 //==============================================================================
-class LatencyTester  : public AudioIODeviceCallback
+class UnMuter  : public AudioIODeviceCallback
 {
 public:
-    LatencyTester (TextEditor& editorBox)
+    UnMuter (TextEditor& editorBox)
         : resultsBox (editorBox)
     {}
 
@@ -120,7 +120,7 @@ private:
 
     bool testIsRunning    = false;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LatencyTester)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (UnMuter)
 };
 
 //==============================================================================
@@ -165,20 +165,20 @@ public:
     ~UROnMute() override
     {
         audioDeviceManager.removeAudioCallback (liveAudioScroller.get());
-        audioDeviceManager.removeAudioCallback (latencyTester    .get());
-        latencyTester    .reset();
+        audioDeviceManager.removeAudioCallback (unMuter    .get());
+        unMuter    .reset();
         liveAudioScroller.reset();
     }
 
     void startTest()
     {
-        if (latencyTester.get() == nullptr)
+        if (unMuter.get() == nullptr)
         {
-            latencyTester.reset (new LatencyTester (resultsBox));
-            audioDeviceManager.addAudioCallback (latencyTester.get());
+            unMuter.reset (new UnMuter (resultsBox));
+            audioDeviceManager.addAudioCallback (unMuter.get());
         }
 
-        if( latencyTester->beginTest() )
+        if( unMuter->beginTest() )
             startTestButton.setButtonText("STOP");
         else
             startTestButton.setButtonText("START");
@@ -208,7 +208,7 @@ public:
 private:
     AudioDeviceManager audioDeviceManager;
 
-    std::unique_ptr<LatencyTester> latencyTester;
+    std::unique_ptr<UnMuter> unMuter;
     std::unique_ptr<LiveScrollingAudioDisplay> liveAudioScroller;
 
     TextButton startTestButton  { "START" };
